@@ -1,28 +1,62 @@
 data Color = Black | Red
+data RBNode = N Color Int
+data RBTree = TN RBTree RBNode RBTree | Empty
+data Cxt = T | L RBTree RBNode Cxt| R Cxt RBNode RBTree
 
--- succColor: Color -> Color
--- succColor Black = Red
--- succColor Red = Black
-data RBNode = N Color RBNode Int RBNode | Empty
-data NodeRel = NL RBNode RBNode RBNode RBNode
+Loc: Type
+Loc = (RBTree, Cxt)
 
-balance: RBNode -> RBNode
+left: Loc -> Loc
+left (TN l n r, c) = (l, L r n c)
 
-insertBW: (RBNode, NodeRel) -> (RBNode, NodeRel)
+right: Loc -> Loc
+right (TN l n r, c) = (r, R c n l)
+
+up: Loc -> Loc
+up (l, L r n c) = (TN l n r, c)
+up (r, R c n l) = (TN l n r, c)
+
+top: RBTree -> Loc
+top t = (t,T)
+
+extract: Loc -> RBTree
+extract (t, T) = t
+extract l = extract (up l)
+
+nav_ins: Int -> Loc -> Loc
+nav_ins newVal (Empty, ctx) = (TN (Empty) (N Red newVal) (Empty), ctx)
+nav_ins newVal l@((TN _ (N _ val) _), _) = case compare newVal val of
+                                              LT => nav_ins newVal $ left l
+                                              EQ => l
+                                              GT => nav_ins newVal $ right l
+
+balance: Loc -> Loc
+balance l@(TN Empty (Node Red val) Empty, T) = l
 
 
-insert: Int -> RBNode -> RBNode
-insert nv t@(N c l v r) = let inserted = case (compare nv v) of
-                                          LT => insert nv l
-                                          EQ => t
-                                          GT => insert nv r
-                                        in balance inserted
+insert: Int -> Loc -> Loc
+insert v l = let inserted = nav_ins v l in
+                      balance inserted
+
+testTree: RBTree
+testTree = TN Empty (N Red 1) (TN (TN Empty (N Red 2) Empty) (N Red 3) Empty)
+
+
+-- insert: Int -> RBTree -> RBTree
+-- insert nv Empty = TN Empty (N Red nv) Empty
+-- insert nv tn@(TN y n w) = let ins = nav nv (top tn) in
+--                                 extract
+
+
+
+
 
 -- insert nv Empty = N Red Empty nv Empty
 
 
 -- data RBTree : Type -> Color -> Type where
 --   Empty : (Ord elem) =>  (c: Color) -> RBTree elem c
+--  rEmptc : lOrd elem) =>  (c: Color) -> RBTree elem c
 --   Node : (Ord elem) => (c: Color) ->
 --               RBTree elem (succColor c) ->
 --               elem ->
@@ -45,3 +79,6 @@ insert nv t@(N c l v r) = let inserted = case (compare nv v) of
 
 -- test: RBTree color
 -- test = Node Red (Empty Black) 1 (Empty Black)
+-- succColor: Color -> Color
+-- succColor Black = Red
+-- succColor Red = Black
