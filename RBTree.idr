@@ -1,4 +1,5 @@
 data Color = Black | Red
+data CaseNo = E0 | E1 | E2 | E3 | E4 | E5 | START
 data RBNode = N Color Int
 data RBTree = TN RBTree RBNode RBTree | Empty
 data Cxt = T | L RBTree RBNode Cxt| R Cxt RBNode RBTree
@@ -19,6 +20,9 @@ up (r, R c n l) = (TN l n r, c)
 top: RBTree -> Loc
 top t = (t,T)
 
+modify: (RBTree -> RBTree) -> Loc -> Loc
+modify f (t, ctx) = (f t, ctx)
+
 extract: Loc -> RBTree
 extract (t, T) = t
 extract l = extract (up l)
@@ -30,8 +34,25 @@ nav_ins newVal l@((TN _ (N _ val) _), _) = case compare newVal val of
                                               EQ => l
                                               GT => nav_ins newVal $ right l
 
+getColor: List (Loc -> Loc) -> Loc -> Maybe Color
+getColor [] ((TN _ (N color _) _), cxt) = Just color
+getColor [] (Empty, _) = Nothing
+getColor (d::_) (_, T) = Nothing
+getColor (d::ds) l = getColor ds (d l)
+
+
+balanceRR: Loc -> Loc
+balanceRR l@(t , T) = case getColor [up, up] l of
+                                    Nothing => modify (\(TN r (N Red v) l) -> TN r (N Black v) l) (up l)
+                                    Just Black => l
+                                    Just Red => balanceRR l
+
+
 balance: Loc -> Loc
-balance l@(TN Empty (Node Red val) Empty, T) = l
+balance l@(TN Empty (N Red val) Empty, T) = l
+balance l@(TN _ (N Red val) _ , T) = case getColor [up] l of
+                                    Just Black => l
+                                    Just Red => balanceRR l
 
 
 insert: Int -> Loc -> Loc

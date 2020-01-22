@@ -1,22 +1,22 @@
--- data Balance = BLeft Balance | BRight Balance | Zero
---
--- data BinaryTree a = Node (BinaryTree a) a (BinaryTree a) | Empty
---
--- data AVL : Type where
---    AVLTree : (b: Balance) ->
---     (t: BinaryTree) ->
---     AVL
---
--- -- test: AVL Nat
--- -- test = Empty
---
--- -- insert: a -> AVL a -> AVL a
--- -- insert x Empty = Node Zero Empty x Empty
--- -- insert x tree@(Node y z w s) = let inserted = ?insert_binary x tree
-data AVLTree = Node Integer AVLTree Integer AVLTree | Empty
+data AVLTree: (a: Nat) -> Type where
+  Leaf: Int -> AVLTree Z
+  Node: AVLTree b-> Int -> AVLTree a-> AVLTree (S (maximum a b))
 
-insert: Integer -> AVLTree -> AVLTree
-insert v (Node b l v' r) = case v < v' of
-                              True => Node (-1) (insert v l) v' r
-                              False => Node (-1) l v' (insert v r)
-insert v Empty = Node 0 Empty v Empty
+-- Loc: Type
+-- Loc = (RBTree, Cxt)
+--
+-- left: Loc -> Loc
+-- left (TN l n r, c) = (l, L r n c)
+--
+-- right: Loc -> Loc
+-- right (TN l n r, c) = (r, R c n l)
+--
+-- up: Loc -> Loc
+-- up (l, L r n c) = (TN l n r, c)
+-- up (r, R c n l) = (TN l n r, c)
+--
+-- top: RBTree -> Loc
+-- top t = (t,T)
+--
+-- modify: (RBTree -> RBTree) -> Loc -> Loc
+-- modify f (t, ctx) = (f t, ctx)
