@@ -1,6 +1,8 @@
-data AVLTree: (a: Nat) -> Type where
+data AVLTree: (height: Nat) -> Type where
   Leaf: Int -> AVLTree Z
   Node: AVLTree b-> Int -> AVLTree a-> AVLTree (S (maximum a b))
+
+
 
 -- Loc: Type
 -- Loc = (RBTree, Cxt)
