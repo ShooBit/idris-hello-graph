@@ -1,7 +1,21 @@
 data AVLTree: (height: Nat) -> Type where
-  Leaf: Int -> AVLTree Z
+  Empty: AVLTree 0
+  Leaf: Int -> AVLTree 1
   Node: AVLTree b-> Int -> AVLTree a-> AVLTree (S (maximum a b))
 
+treeHeight: AVLTree height-> Nat
+treeHeight {height} _= height
+
+insert: Int -> AVLTree height -> Either (AVLTree (S height)) (AVLTree height)
+insert nv Empty = Left (Leaf nv)
+insert nv l@(Leaf v) = case compare nv v of
+                        LT => Left (Node (Leaf nv) v l)
+                        EQ => Right l
+                        GT => Left (Node l v (Leaf nv))
+insert nv n@(Node l v r) = case compare nv v of
+                        LT => insert nv l
+                        EQ => Right n
+                        GT => insert nv r
 
 
 -- Loc: Type
