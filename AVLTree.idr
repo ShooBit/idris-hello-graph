@@ -15,18 +15,30 @@ treeHeight {height} _= height
 
 data Ctx = L (AVLTree height) Int Ctx | R Ctx Int (AVLTree height) | T
 
-Loc: Nat -> Type
-Loc level = (AVLTree level, Ctx)
+Loc: Type
+Loc = ((n ** AVLTree n), Ctx)
 
+ -- MkDPair : {P : a -> Type} -> (x : a) -> P x -> DPair a P
 
-left: Loc height -> (h**Loc h)
-left (Empty, ctx) = (_**(Empty, ctx))
-left (Node l v r, ctx) = (_**(l, L r v ctx))
+left: Loc -> Loc
+left ((_ ** Empty), ctx) = ((_**Empty), ctx)
+left ((_ ** Node l v r), ctx) = ((_**l), L r v ctx)
 
-up: Loc height -> (h**Loc h)
-up (t, T) = (_**(t, T))
-up (l, (L r v ctx)) = (_**(Node l v r, ctx))
-up (r, (R ctx v l)) = (_**(Node l v r, ctx))
+right: Loc -> Loc
+right ((_ ** Empty), ctx) = ((_**Empty), ctx)
+right ((_ ** Node l v r), ctx) = ((_**r), R ctx v l)
+
+up: Loc -> Loc
+up ((_ **t), T) = ((_**t), T)
+up ((_**l), (L r v ctx)) = ((_**Node l v r), ctx)
+up ((_**r), (R ctx v l)) = ((_**Node l v r), ctx)
+
+insert:  Int -> Loc -> Loc
+insert  nv ((_**Empty), ctx) = ((_**(Node Empty nv Empty)), ctx)
+insert  nv ((_ ** Node l v r), ctx) = case compare nv v of
+                              LT => insert nv $ left ((_ ** Node l v r), ctx)
+                              EQ => ((_ ** Node l v r), ctx)
+                              GT => insert nv $ right ((_ ** Node l v r), ctx)
 
 
 -- left ((Node l v r), ctx) = (l, L r ctx)
