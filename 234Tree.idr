@@ -1,31 +1,33 @@
--- data Tree : Type -> Type where
---   Empty: (Ord elem) =>  Tree elem
---   Node1: (Ord elem) =>  Tree elem -> elem -> Tree elem -> Tree elem
---   Node2: (Ord elem) =>  Tree elem -> elem -> Tree elem -> elem -> Tree elem -> Tree elem
---   Node3: (Ord elem) =>  Tree elem -> elem -> Tree elem -> elem -> Tree elem -> elem -> Tree elem -> Tree elem
+data Tree: Type where
+  Empty: Tree
+  L1: Int -> Tree
+  N2: Tree -> (val: Int) -> Tree -> (val: Int) -> Tree -> Tree
+  L2: Int -> Int -> Tree
+  N3: (val: Int)-> Tree -> (val: Int) -> Tree -> (val: Int) -> Tree -> Tree
 
--- data NodeData = Node Int
---
--- NodeType: (numvals: Nat) -> type
--- NodeType Z = NodeData
--- NodeType (S k) = Node Int -> NodeType k
+data Ctx = T
+          |M Tree v Tree Ctx
+          | LM Tree v Tree v Tree Ctx
+          | MM Tree v Tree v Tree Ctx
+          | RM Tree v Tree v Tree Ctx
 
+Loc: Type
+Loc = (Tree, Ctx)
 
--- insert: (Ord elem)=> elem -> Tree elem -> Tree elem
--- insert new Empty = Node1 Empty new Empty
--- insert new n@(Node1 lt mv rt) = case compare new mv of
---                                           LT => Node1 (insert new lt) mv rt
---                                           EQ => n
---                                           GT => Node1 lt mv (insert new rt)
--- insert new (Node2 lt lv mt rv rt) = case compare new lv of
---                                          case_val => ?insert_rhs_3
--- insert new (Node3 lt lv mlt mv mrt rv rt) = ?insert_rhs_4
+insert': Int -> Loc -> Loc
+insert' nv (Empty, ctx) = (N1 Empty nv Empty, ctx)
+insert' nv ((L1 v), ctx) = case compare nv v of
+                        LT => (L2 nv v, ctx)
+                        EQ => (L1 v, ctx)
+                        GT => (L2 v nv, ctx)
+insert' nv ((L2 l r), ctx) = case compare nv v of
+                        LT => (N2 Empty nv Empty v Empty, ctx)
+                        EQ => (N1 Empty v Empty, ctx)
+                        GT => (N2 Empty v Empty nv Empty, ctx)
+-- insert' nv (Empty, _) = (N1 Empty nv Empty, T)
 
+extract: Loc -> Tree
 
-AdderType: (numargs: Nat) -> Type -> Type
-AdderType Z numtype = numtype
-AdderType (S k) numtype = (next: numtype) -> AdderType k numtype
-
-adder: Num numtype => (numargs: Nat) -> numtype -> AdderType numargs numtype
-adder Z x = x
-adder (S k) x = \next => adder k (next + x)
+insert: Int -> Tree -> Tree
+insert nv t = let it = insert' nv (t, T) in
+                  extract it
