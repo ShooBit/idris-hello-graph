@@ -1,16 +1,20 @@
--- import Data.Vect
--- data In: a -> List a -> Type where
---   Here: (x: a) -> (xs: List a) -> In x (x::xs)
---   -- Three: (x,y : a) -> (xs: List a) -> In x xs -> In x (y:xs)
---
+data In: a -> List a -> Type where
+  Here : In x (x::xs)
+  There : (later: In x xs)-> In x (y::xs)
+
 data Node = N Nat
+
+Graph: Type
+Graph = List (Node, (List Node))
+
+data Contains: Node -> Graph -> Type where
+  ThisOne : Contains x ((x,_)::xs)
+  OtherOne : (later: Contains x xs)-> Contains x ((y,_)::xs)
 
 implementation Eq Node where
    (N a) == (N b) = a == b
    (N a) /= (N b) = a /= b
---
-Graph: Type
-Graph = List (Node, (List Node))
+
 
 insertConnection: Node -> Node -> Graph -> Graph
 insertConnection n sn [] = []
@@ -37,6 +41,15 @@ depthSearch sn graph = depthSearch' [sn] [] graph where
                 depthSearch' (n::nn) vns graph = if elem n vns
                             then depthSearch' nn vns graph
                             else n::depthSearch' ((getConnected n graph)++nn) (n::vns) graph
+
+connectInDFS:
+  (elem : Node) ->
+  (g : Graph) ->
+  (connectTo : List Node) ->
+  (inGraph : (n : Node) -> In n connectTo -> Contains n g) ->
+  (n : Node) ->
+  In n connectTo ->
+  In n (depthSearch elem (insert elem connectTo g)) --added connectTo
 
 graph: Graph
 graph = insert (N 5) [N 4] (insert (N 4) [(N 2), (N 3)](insert (N 3) [(N 1)](insert (N 2) [N 1] (insert (N 1) [] []))))

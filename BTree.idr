@@ -13,7 +13,10 @@ data Tree: Nat -> Type where
 
 newHeight : Nat -> Tree h -> Nat
 newHeight nv (Empty) = (S Z)
-newHeight nv (Node {a} l v {b} r) = ?max --maximum ((newHeight nv l), (newHeight nv r))
+newHeight nv (Node {a} l v {b} r) = case compare nv v of
+                LT: S (newHeight nv r)
+
+insert: Nat a -> (tree: Tree h) -> Tree (newHeight n t)
 
 
 -- data Tree = N Tree Nat Tree | Empty
