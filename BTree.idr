@@ -1,14 +1,27 @@
-StringInt: Bool -> Type
-StringInt True = String
-StringInt False = Int
+interface TreeEntry a where
+  toTreeEntry : a -> Nat
 
-data Tree = N Tree Int Tree | Empty
+TreeEntry String where
+  toTreeEntry s = length s
 
-insert: (isString:Bool)->StringInt isString -> Tree-> Tree
-insert True nv t with (toIntNat (length nv))
-        | nn = insert False nn t
-insert False nv Empty = N Empty nv Empty
-insert False nv (N l v r) with (compare nv v)
-        |LT = N (insert False nv l) v r
-        |EQ = (N l v r)
-        |GT = N l v (insert False nv r)
+TreeEntry Nat where
+  toTreeEntry a = a
+
+data Tree: Nat -> Type where
+  Empty: Tree Z
+  Node: Tree a -> Nat -> Tree b -> Tree (S(Nat.maximum a b))
+
+newHeight : Nat -> Tree h -> Nat
+newHeight nv (Empty) = (S Z)
+newHeight nv (Node {a} l v {b} r) = ?max --maximum ((newHeight nv l), (newHeight nv r))
+
+
+-- data Tree = N Tree Nat Tree | Empty
+
+--
+-- insert: TreeEntry a => a -> Tree-> Tree
+-- insert nv Empty = N Empty (toTreeEntry nv) Empty
+-- insert nv (N l v r) with (compare (toTreeEntry nv) v)
+--         |LT = N (insert nv l) v r
+--         |EQ = (N l v r)
+--         |GT = N l v (insert nv r)
